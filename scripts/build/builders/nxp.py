@@ -17,69 +17,64 @@ from enum import Enum, auto
 
 from .gn import GnBuilder
 
+class NxpBoard(Enum):
+    K32W0 = 1
+    K32W1 = 2
+    RT1060 = 3
+    RT1170 = 4
+    RW612 = 5
 
-class K32WBoard(Enum):
-    K32W0 = auto()
-    K32W1 = auto()
-
-    def Name(self):
-        if self == K32WBoard.K32W0:
-            return 'k32w0x'
-        elif self == K32WBoard.K32W1:
-            return 'k32w1'
-        else:
-            raise Exception('Unknown board type: %r' % self)
-
-    def FolderName(self):
-        if self == K32WBoard.K32W0:
+    def GnArgName(self):
+        # Example name as it appears in the examples folder.
+        if self == NxpBoard.K32W0:
             return 'k32w/k32w0'
-        elif self == K32WBoard.K32W1:
+        elif self == NxpBoard.K32W1:
             return 'k32w/k32w1'
+        elif self == NxpBoard.RT1060:
+            return 'rt/rt1060'
+        elif self == NxpBoard.RT1170:
+            return 'rt/rt1170'
+        elif self == NxpBoard.RW612:
+            return 'rt/rw612'
         else:
-            raise Exception('Unknown board type: %r' % self)
+            raise Exception('Unknown board #: %r' % self)
 
-
-class K32WApp(Enum):
+class NxpApp(Enum):
+    ALL_CLUSTERS = auto()
+    CONTACT = auto()
     LIGHT = auto()
+    LIGHT_SWITCH_COMBO = auto()
     LOCK = auto()
     SHELL = auto()
-    CONTACT = auto()
 
     def ExampleName(self):
-        if self == K32WApp.LIGHT:
-            return 'lighting-app'
-        elif self == K32WApp.LOCK:
-            return 'lock-app'
-        elif self == K32WApp.SHELL:
-            return 'shell'
-        elif self == K32WApp.CONTACT:
+        # Example name as it appears in the examples folder.
+        if self == NxpApp.ALL_CLUSTERS:
+            return 'all-clusters-app'
+        elif self == NxpApp.CONTACT:
             return "contact-sensor-app"
-        else:
-            raise Exception('Unknown app type: %r' % self)
-
-    def NameSuffix(self):
-        if self == K32WApp.LIGHT:
-            return 'light-example'
-        elif self == K32WApp.LOCK:
-            return 'lock-example'
-        elif self == K32WApp.SHELL:
-            return 'shell-example'
-        elif self == K32WApp.CONTACT:
-            return 'contact-example'
+        elif self == NxpApp.LIGHT:
+            return 'lighting-app'
+        elif self == NxpApp.LIGHT_SWITCH_COMBO:
+            return 'light-switch-combo-app'
+        elif self == NxpApp.LOCK:
+            return 'lock-app'
+        elif self == NxpApp.SHELL:
+            return 'shell'
         else:
             raise Exception('Unknown app type: %r' % self)
 
     def BuildRoot(self, root, board):
-        return os.path.join(root, 'examples', self.ExampleName(), 'nxp', board.FolderName())
+        return os.path.join(root, 'examples', self.ExampleName(), 'nxp', board.GnArgName())
 
 
-class K32WBuilder(GnBuilder):
+class NxpBuilder(GnBuilder):
 
     def __init__(self,
                  root,
                  runner,
-                 app: K32WApp = K32WApp.LIGHT,
-                 board: K32WBoard = K32WBoard.K32W0,
+                 app: NxpApp = NxpApp.LIGHT,
+                 board: NxpBoard = NxpBoard.K32W0,
                  release: bool = False,
                  low_power: bool = False,
                  tokenizer: bool = False,
@@ -90,7 +85,7 @@ class K32WBuilder(GnBuilder):
                  tinycrypt: bool = False,
                  crypto_platform: bool = False,
                  openthread_ftd: bool = False):
-        super(K32WBuilder, self).__init__(
+        super(NxpBuilder, self).__init__(
             root=app.BuildRoot(root, board),
             runner=runner)
         self.code_root = root
@@ -144,11 +139,7 @@ class K32WBuilder(GnBuilder):
 
         return args
 
-    def generate(self):
-        super(K32WBuilder, self).generate()
-
     def build_outputs(self):
-        name = 'chip-%s-%s' % (self.board.Name(), self.app.NameSuffix())
         return {
             '%s.elf' % name: os.path.join(self.output_dir, name),
             '%s.map' % name: os.path.join(self.output_dir, '%s.map' % name)

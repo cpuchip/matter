@@ -24,7 +24,7 @@ from builders.genio import GenioApp, GenioBuilder
 from builders.host import HostApp, HostBoard, HostBuilder, HostCryptoLibrary, HostFuzzingType
 from builders.imx import IMXApp, IMXBuilder
 from builders.infineon import InfineonApp, InfineonBoard, InfineonBuilder
-from builders.k32w import K32WApp, K32WBoard, K32WBuilder
+from builders.nxp import NxpApp, NxpBoard, NxpBuilder
 from builders.mbed import MbedApp, MbedBoard, MbedBuilder, MbedProfile
 from builders.mw320 import MW320App, MW320Builder
 from builders.nrf import NrfApp, NrfBoard, NrfConnectBuilder
@@ -458,8 +458,17 @@ def BuildASRTarget():
     return target
 
 
-def BuildK32WTarget():
-    target = BuildTarget('k32w', K32WBuilder)
+def BuildNxpTarget():
+    target = BuildTarget('nxp', NxpBuilder)
+
+    # board
+    target.AppendFixedTargets([
+        TargetPart('k32w0', board=NxpBoard.K32W0),
+        TargetPart('k32w1', board=NxpBoard.K32W1),
+        TargetPart('rt1060', board=NxpBoard.RT1060),
+        TargetPart('rt1070', board=NxpBoard.RT1170),
+        TargetPart('rw612', board=NxpBoard.RW612)
+    ])
 
     # boards
     target.AppendFixedTargets([
@@ -469,20 +478,22 @@ def BuildK32WTarget():
 
     # apps
     target.AppendFixedTargets([
-        TargetPart('light', app=K32WApp.LIGHT, release=True),
-        TargetPart('shell', app=K32WApp.SHELL, release=True),
-        TargetPart('lock', app=K32WApp.LOCK, release=True),
-        TargetPart('contact', app=K32WApp.CONTACT, release=True)
+        TargetPart('all-clusters', app=NxpApp.ALL_CLUSTERS),
+        TargetPart('contact-sensor', app=NxpApp.CONTACT, release=True),
+        TargetPart('lighting', app=NxpApp.LIGHT, release=True),
+        TargetPart('light-switch-combo', app=NxpApp.LIGHT_SWITCH_COMBO, release=True),
+        TargetPart('lock', app=NxpApp.LOCK, release=True),
+        TargetPart('shell', app=NxpApp.SHELL, release=True),
     ])
 
+    # gn options
     target.AppendModifier(name="se05x", se05x=True)
     target.AppendModifier(name="no-ble", disable_ble=True)
     target.AppendModifier(name="no-ota", disable_ota=True)
     target.AppendModifier(name="low-power", low_power=True).OnlyIfRe("-nologs")
     target.AppendModifier(name="nologs", disable_logs=True)
     target.AppendModifier(name="crypto-platform", crypto_platform=True)
-    target.AppendModifier(
-        name="tokenizer", tokenizer=True).ExceptIfRe("-nologs")
+    target.AppendModifier(name="tokenizer", tokenizer=True).ExceptIfRe("-nologs")
     target.AppendModifier(name="openthread-ftd", openthread_ftd=True)
 
     return target
@@ -769,7 +780,7 @@ BUILD_TARGETS = [
     BuildHostTestRunnerTarget(),
     BuildIMXTarget(),
     BuildInfineonTarget(),
-    BuildK32WTarget(),
+    BuildNxpTarget(),
     BuildMbedTarget(),
     BuildMW320Target(),
     BuildNrfTarget(),
