@@ -84,7 +84,15 @@ class NxpBuilder(GnBuilder):
                  se05x: bool = False,
                  tinycrypt: bool = False,
                  crypto_platform: bool = False,
-                 openthread_ftd: bool = False):
+                 openthread_ftd: bool = False,
+                 factory_data: bool = False,
+                 rotating_device_id: bool = False,
+                 smu2_static: bool = False,
+                 smu2_dynamic: bool = False,
+                 rpc_server: bool = False,
+                 matter_cli: bool = False,
+                 is_sdk_package: bool = False,
+                 no_mcuboot: bool = False):
         super(NxpBuilder, self).__init__(
             root=app.BuildRoot(root, board),
             runner=runner)
@@ -101,9 +109,24 @@ class NxpBuilder(GnBuilder):
         self.tinycrypt = tinycrypt
         self.crypto_platform = crypto_platform
         self.openthread_ftd = openthread_ftd
+        self.factory_data = factory_data
+        self.rotating_device_id = rotating_device_id
+        self.smu2_static = smu2_static
+        self.smu2_dynamic = smu2_dynamic
+        self.rpc_server = rpc_server
+        self.matter_cli = matter_cli
+        self.is_sdk_package = is_sdk_package
+        self.no_mcuboot = no_mcuboot
 
     def GnBuildArgs(self):
         args = []
+
+        try:
+            args.append(
+                '%s_sdk_root="%s"' % (self.board.name.lower(), os.environ['NXP_%s_SDK_ROOT' % (self.board.name.upper())])
+            )
+        except Exception:
+            raise Exception('NXP_%s_SDK_ROOT not defined' % (self.board.name.upper()))
 
         if self.low_power:
             args.append('chip_with_low_power=1')
@@ -114,7 +137,7 @@ class NxpBuilder(GnBuilder):
             args.append('chip_pw_tokenizer_logging=true')
 
         if self.release:
-            args.append('is_debug=false')
+            args.append('is_debug=false optimize_debug=true')
 
         if self.disable_ble:
             args.append('chip_enable_ble=false')
@@ -136,6 +159,32 @@ class NxpBuilder(GnBuilder):
 
         if self.openthread_ftd:
             args.append('chip_openthread_ftd=true')
+
+        if self.factory_data:
+            args.append('chip_with_factory_data=1')
+
+        if self.rotating_device_id:
+            args.append('chip_enable_rotating_device_id=1 chip_enable_additional_data_advertising=1')
+
+        if self.smu2_static:
+            args.append('use_smu2_static=true')
+
+        if self.smu2_dynamic:
+            args.append('use_smu2_dynamic=true')
+
+        if self.rpc_server:
+            args.append('import("//with_pw_rpc.gni") treat_warnings_as_errors=false')
+
+        if self.matter_cli:
+            args.append('chip_enable_matter_cli=true')
+
+        if self.is_sdk_package:
+            args.append('is_sdk_package=true')
+        else:
+            args.append('is_sdk_internal=true')
+
+        if self.no_mcuboot:
+            args.append('no_mcuboot=false')
 
         return args
 

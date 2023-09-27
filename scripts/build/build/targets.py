@@ -478,16 +478,16 @@ def BuildNxpTarget():
 
     # apps
     target.AppendFixedTargets([
-        TargetPart('all-clusters', app=NxpApp.ALL_CLUSTERS),
-        TargetPart('contact-sensor', app=NxpApp.CONTACT, release=True),
-        TargetPart('lighting', app=NxpApp.LIGHT, release=True),
-        TargetPart('light-switch-combo', app=NxpApp.LIGHT_SWITCH_COMBO, release=True),
-        TargetPart('lock', app=NxpApp.LOCK, release=True),
+        TargetPart('all-clusters', app=NxpApp.ALL_CLUSTERS).OnlyIfRe('-(rt1060|rt1170|rw612)'),
+        TargetPart('contact-sensor', app=NxpApp.CONTACT, release=True).OnlyIfRe('-(k32w0|k32w1)'),
+        TargetPart('lighting', app=NxpApp.LIGHT, release=True).OnlyIfRe('-(k32w0|k32w1)'),
+        TargetPart('light-switch-combo', app=NxpApp.LIGHT_SWITCH_COMBO, release=True).OnlyIfRe('-(k32w0|k32w1)'),
+        TargetPart('lock', app=NxpApp.LOCK, release=True).OnlyIfRe('-k32w0'),
         TargetPart('shell', app=NxpApp.SHELL, release=True),
     ])
 
     # gn options
-    target.AppendModifier(name="se05x", se05x=True)
+    target.AppendModifier(name="se05x", se05x=True).OnlyIfRe('-k32w0')
     target.AppendModifier(name="no-ble", disable_ble=True)
     target.AppendModifier(name="no-ota", disable_ota=True)
     target.AppendModifier(name="low-power", low_power=True).OnlyIfRe("-nologs")
@@ -495,6 +495,14 @@ def BuildNxpTarget():
     target.AppendModifier(name="crypto-platform", crypto_platform=True)
     target.AppendModifier(name="tokenizer", tokenizer=True).ExceptIfRe("-nologs")
     target.AppendModifier(name="openthread-ftd", openthread_ftd=True)
+    target.AppendModifier(name="factory-data", factory_data=True)
+    target.AppendModifier(name="rotating-device-id", rotating_device_id=True)
+    target.AppendModifier(name="smu2-static", smu2_static=True).OnlyIfRe('-k32w1')
+    target.AppendModifier(name="smu2-dynamic", smu2_dynamic=True).OnlyIfRe("-openthread-ftd").OnlyIfRe('-k32w1')
+    target.AppendModifier(name="rpc-server", rpc_server=True).OnlyIfRe('-k32w1')
+    target.AppendModifier(name="matter-cli", matter_cli=True).OnlyIfRe('-(rt1060|rt1170|rw612)')
+    target.AppendModifier(name="sdk-package", is_sdk_package=True).OnlyIfRe('-(rt1060|rt1170|rw612)')
+    target.AppendModifier(name="no-mcuboot", no_mcuboot=True).OnlyIfRe('-(rt1060|rt1170|rw612)')
 
     return target
 
