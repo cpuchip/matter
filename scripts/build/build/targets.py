@@ -461,19 +461,13 @@ def BuildASRTarget():
 def BuildNxpTarget():
     target = BuildTarget('nxp', NxpBuilder)
 
-    # board
+    # boards
     target.AppendFixedTargets([
         TargetPart('k32w0', board=NxpBoard.K32W0),
         TargetPart('k32w1', board=NxpBoard.K32W1),
         TargetPart('rt1060', board=NxpBoard.RT1060),
         TargetPart('rt1070', board=NxpBoard.RT1170),
         TargetPart('rw612', board=NxpBoard.RW612)
-    ])
-
-    # boards
-    target.AppendFixedTargets([
-        TargetPart('k32w0', board=K32WBoard.K32W0),
-        TargetPart('k32w1', board=K32WBoard.K32W1)
     ])
 
     # apps
