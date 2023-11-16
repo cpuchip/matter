@@ -86,7 +86,7 @@ class NxpBuilder(GnBuilder):
                 '%s_sdk_root="%s"' % (self.board.name.lower(), os.environ['NXP_%s_SDK_ROOT' % (self.board.name.upper())])
             )
         except Exception:
-            raise Exception('NXP_{%s}_SDK_ROOT not defined' % (self.board.name.upper()))
+            raise Exception('NXP_%s_SDK_ROOT not defined' % (self.board.name.upper()))
 
         if 'release' in self.args and self.args.pop('release') is True:
             args.append('is_debug=false optimize_debug=true')
