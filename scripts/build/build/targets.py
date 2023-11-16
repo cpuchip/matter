@@ -472,31 +472,36 @@ def BuildNxpTarget():
 
     # apps
     target.AppendFixedTargets([
-        TargetPart('all-clusters', app=NxpApp.ALL_CLUSTERS).OnlyIfRe('-(rt1060|rt1170|rw612)'),
+        TargetPart('all-clusters', app=NxpApp.ALL_CLUSTERS, release=True).OnlyIfRe('-(rt1060|rt1170|rw612)'),
         TargetPart('contact-sensor', app=NxpApp.CONTACT, release=True).OnlyIfRe('-(k32w0|k32w1)'),
         TargetPart('lighting', app=NxpApp.LIGHT, release=True).OnlyIfRe('-(k32w0|k32w1)'),
         TargetPart('light-switch-combo', app=NxpApp.LIGHT_SWITCH_COMBO, release=True).OnlyIfRe('-(k32w0|k32w1)'),
-        TargetPart('lock', app=NxpApp.LOCK, release=True).OnlyIfRe('-k32w0'),
         TargetPart('shell', app=NxpApp.SHELL, release=True),
     ])
 
-    # gn options
-    target.AppendModifier(name="se05x", se05x=True).OnlyIfRe('-k32w0')
-    target.AppendModifier(name="no-ble", disable_ble=True)
-    target.AppendModifier(name="no-ota", disable_ota=True)
-    target.AppendModifier(name="low-power", low_power=True).OnlyIfRe("-nologs")
-    target.AppendModifier(name="nologs", disable_logs=True)
-    target.AppendModifier(name="crypto-platform", crypto_platform=True)
-    target.AppendModifier(name="tokenizer", tokenizer=True).ExceptIfRe("-nologs")
-    target.AppendModifier(name="openthread-ftd", openthread_ftd=True)
-    target.AppendModifier(name="factory-data", factory_data=True)
-    target.AppendModifier(name="rotating-device-id", rotating_device_id=True)
-    target.AppendModifier(name="smu2-static", smu2_static=True).OnlyIfRe('-k32w1')
-    target.AppendModifier(name="smu2-dynamic", smu2_dynamic=True).OnlyIfRe("-openthread-ftd").OnlyIfRe('-k32w1')
-    target.AppendModifier(name="rpc-server", rpc_server=True).OnlyIfRe('-k32w1')
-    target.AppendModifier(name="matter-cli", matter_cli=True).OnlyIfRe('-(rt1060|rt1170|rw612)')
-    target.AppendModifier(name="sdk-package", is_sdk_package=True).OnlyIfRe('-(rt1060|rt1170|rw612)')
-    target.AppendModifier(name="no-mcuboot", no_mcuboot=True).OnlyIfRe('-(rt1060|rt1170|rw612)')
+    # Common gn options
+    target.AppendModifier(name="no-ble", chip_enable_ble="false")
+    target.AppendModifier(name="no-ota", chip_enable_ota_requestor="false")
+    target.AppendModifier(name="openthread-ftd", chip_openthread_ftd="true")
+    target.AppendModifier(name="factory-data", chip_with_factory_data="1")
+    target.AppendModifier(name="nologs", chip_logging="false")
+    target.AppendModifier(name="rotating-device-id", chip_enable_rotating_device_id="true", chip_enable_additional_data_advertising="true")
+    target.AppendModifier(name="crypto-platform", chip_crypto="\"platform\"")
+
+    # K32W gn options
+    target.AppendModifier(name="low-power", chip_with_low_power="1").OnlyIfRe("contact-sensor-.*-nologs")
+    target.AppendModifier(name="se05x", chip_with_se05x="1").OnlyIfRe('-k32w0')
+    target.AppendModifier(name="OM15082", chip_with_OM15082="1").OnlyIfRe('-k32w0')
+    target.AppendModifier(name="tokenizer", chip_pw_tokenizer_logging="true").ExceptIfRe("-nologs").OnlyIfRe('-k32w0')
+    # Disabled for now
+    #target.AppendModifier(name="smu2-static", use_smu2_static="true").OnlyIfRe('-k32w1')
+    #target.AppendModifier(name="smu2-dynamic", use_smu2_dynamic="true").OnlyIfRe("-openthread-ftd").OnlyIfRe('-k32w1')
+    #target.AppendModifier(name="rpc-server", rpc_server=True).OnlyIfRe('-k32w1')
+
+    # RT gn options
+    target.AppendModifier(name="matter-cli", chip_enable_matter_cli="true").OnlyIfRe('-(rt1060|rt1170|rw612)')
+    target.AppendModifier(name="sdk-package", is_sdk_package="true").OnlyIfRe('-(rt1060|rt1170|rw612)')
+    target.AppendModifier(name="no-mcuboot", no_mcuboot="true").OnlyIfRe('-(rt1060|rt1170|rw612)')
 
     return target
 
