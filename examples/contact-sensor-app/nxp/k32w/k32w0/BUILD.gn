@@ -72,7 +72,7 @@ k32w0_sdk("sdk") {
 }
 
 k32w0_executable("contact_sensor_app") {
-  output_name = "chip-k32w0x-contact-example"
+  output_name = "chip-k32w0-contact-sensor-app"
 
   sources = [
     "${k32w0_platform_dir}/util/LEDWidget.cpp",
